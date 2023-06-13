@@ -35,126 +35,29 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+   Stream<int> a=Stream.fromIterable([1]);
+  Stream<int> b= Stream.fromIterable([2, 3]);
+  Stream<int> c=Stream.fromIterable([4, 5, 6]);
   @override
   Widget build(BuildContext context) {
-    BehaviorSubject<int> behaviorSubject = BehaviorSubject<int>.seeded(1);
-    BehaviorSubject<int> behaviorSubject1 = BehaviorSubject<int>();
 
-    behaviorSubject1.stream.listen((data) {
-      print("listener - 1 : $data");
+    combineLatestStream(a, b, c).listen((event) {
+      print(event);
     });
 
-    behaviorSubject1.add(1);
-    behaviorSubject1.add(2);
-
-    behaviorSubject1.stream.listen((data) {
-      print("listener - 2 : $data");
+    concatStream(a, b, c).listen((event) {
+      print(event);
     });
 
-    behaviorSubject1.add(3);
-
-    behaviorSubject1.stream.listen((data) {
-      print("listener - 3 : $data");
+    forkJoinStream(a, b, c).listen((event) {
+      print(event);
     });
 
-    CombineLatestStream.list<int>([
-      Stream.fromIterable([1]),
-      Stream.fromIterable([2, 3]),
-      Stream.fromIterable([4, 5, 6]),
-    ]).listen(print);
-
-    ConcatStream([
-      Stream.fromIterable([1]),
-      Stream.fromIterable([2, 3]),
-      Stream.fromIterable([4, 5, 6]),
-    ]).listen(print);
-
-    ForkJoinStream.list<int>([
-      Stream.fromIterable([1, 2, 3]),
-      Stream.fromIterable([4, 5]),
-      Stream.fromIterable([6]),
-    ]).listen(print);
-
-    FromCallableStream(() async {
-      await Future<void>.delayed(const Duration(seconds: 3));
-      return 'Value';
-    }).listen(print);
-
-    MergeStream([
-      Stream.fromIterable([1, 2, 3]),
-      Stream.fromIterable([4, 5]),
-      Stream.fromIterable([6]),
-    ]).listen(print);
-
-    RaceStream([
-      TimerStream([1, 2, 3], Duration(seconds: 15)),
-      TimerStream([4, 5], Duration(seconds: 10)),
-      TimerStream([6, 7, 8, 9, 10], Duration(seconds: 5)),
-    ]).listen(print);
-
-    DeferStream(() => Stream.value([1, 2, 3])).listen(print);
-    RangeStream(1, 5).listen((i) => print(i));
-
-    var isError = false;
-    RetryWhenStream<String>(
-          () => Stream.periodic(const Duration(seconds: 1), (i) => i).map((i) {
-        return (i == 4)
-            ? throw 'Stop'
-            : (i == 3 && !isError)
-            ? throw 'restart'
-            : isError ? 'restart: $i': '$i';
-      }),
-          (e, s) {
-        isError = true;
-        if (e == 'restart') {
-          return Stream.value('restarting!!!');
-        } else {
-          return Stream.error(e, s);
-        }
-      },
-    ).listen(print, onError: print);
-
-    SwitchLatestStream<String>(
-      Stream.fromIterable(<Stream<String>>[
-        Rx.timer('1', Duration(seconds: 2)),
-        Rx.timer('2', Duration(seconds: 3)),
-        Stream.value('3'),
-      ]),
-    ).listen(print);
-
-    SequenceEqualStream(
-      Stream.fromIterable([1, 2, 3, 4, 5]),
-      Stream.fromIterable([1, 2, 3, 4, 5]),
-    ).listen(print);
-
-    SwitchLatestStream<String>(
-      Stream.fromIterable(<Stream<String>>[
-        Rx.timer('1', Duration(seconds: 2)),
-        Rx.timer('2', Duration(seconds: 3)),
-        Stream.value('3'),
-      ]),
-    ).listen(print);
-
-    TimerStream(1, Duration(seconds: 5)).listen((i) => print(i));
-
-    UsingStream<int, Queue<int>>(
-          () => Queue.of([1, 2, 3, 4, 5]),
-          (r) => Stream.fromIterable(r),
-          (r) => r.clear(),
-    ).listen(print);
-
-    ZipStream(
-      [
-        Stream.fromIterable([1, 2]),
-        Stream.fromIterable([3, 4]),
-        Stream.fromIterable([5, 6, 7]),
-      ],
-          (values) => values.join(),
-    ).listen(print);
+    mergeStream(a, b, c).listen((event) {
+      print(event);
+    });
 
 
-
-    behaviorSubject1.close();
 
     return Scaffold(
       appBar: AppBar(
@@ -172,4 +75,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
     );
   }
+  Stream<List<int>> combineLatestStream(Stream<int> a,Stream<int> b,Stream<int> c){
+    return
+    CombineLatestStream.list<int>([
+      a,b,c
+    ]);
+  }
+  Stream<int> concatStream(Stream<int> a,Stream<int> b,Stream<int> c){
+    return
+  ConcatStream([
+    a,b,c
+  ]);
+}
+ Stream<List<int>> forkJoinStream(Stream<int> a,Stream<int> b,Stream<int> c){
+    return
+  ForkJoinStream.list<int>([
+    a,b,c
+  ]);
+}
+Stream<int> mergeStream(Stream<int> a,Stream<int> b,Stream<int> c){
+    return
+  MergeStream([
+    a,b,c
+  ]);
+}
+
+
+
 }
